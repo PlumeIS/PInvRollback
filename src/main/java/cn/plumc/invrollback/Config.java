@@ -1,11 +1,21 @@
 package cn.plumc.invrollback;
 
-public class PInvRollbackConfig {
+public class Config {
     public static String i18n(String key){
-        return PInvRollback.instance.getConfig().getString("messages.%s".formatted(key), key);
+        String text = PInvRollback.instance.getConfig().getString("messages.%s".formatted(key), key).replaceAll("&", "§");
+        if (key.startsWith("command")) return getPrefix()+" "+text;
+        return text;
     }
 
     public static int maxCount(String type){
         return PInvRollback.instance.getConfig().getInt("maxSaves.%s".formatted(type));
+    }
+
+    public static int pageLines(){
+        return PInvRollback.instance.getConfig().getInt("command.page_lines");
+    }
+
+    public static String getPrefix(){
+        return PInvRollback.instance.getConfig().getString("messages.command.prefix", "").replaceAll("&", "§");
     }
 }
