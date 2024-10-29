@@ -1,0 +1,39 @@
+maxSaves:
+  manual: 64
+  join: 32
+  quit: 32
+  death: 64
+  worldChange: 32
+  rollback: 32
+
+messages:
+  type.manual: "手动备份"
+  type.join: "加入游戏时"
+  type.quit: "退出游戏时"
+  type.death: "死亡前"
+  type.worldChange: "进入新世界时"
+  type.rollback: "回滚前"
+
+  command.player_only: "&c仅玩家可以使用此命令!"
+  command.player.offline: "&c玩家不在线!"
+  command.permission_missing: "&c你无权限执行此命令!"
+
+  command.rollback.id.missing: "请指定回滚id!"
+  command.rollback.success: "回滚成功!"
+  command.rollback.failed: "&c你只能回滚自己的备份!"
+  command.rollback.failed.other: "&c此备份并不属于此玩家!"
+  command.create.success: "创建成功，本次创建的备份id为 &b%d&f。"
+
+  command.list.prefix: "&6============[玩家: &r%s&6 页数: &e&n%d&6 / &e&l%d&6]============"
+  command.list.line: "&6ID:&a%d &6类型:&e%s &6日期:&e%s &6描述:&f%s"
+  command.list.out_of_pages: "&c超出范围!"
+
+  command.prefix: "&8[&aPIRB&8]&f"
+  command.help: "用法: /pinvrollback [create/rollback/list/ui]"
+  command.help.create: "用法: /pinvrollback create (message) (target)"
+  command.help.rollback: "用法: /pinvrollback rollback [id] (reason) (target)"
+  command.help.list: "用法: /pinvrollback list (page) (target)"
+  command.help.ui: "用法: /pinvrollback ui (target)"
+
+command:
+  page_lines: 5
