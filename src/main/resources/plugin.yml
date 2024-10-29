@@ -1,0 +1,6 @@
+name: PInvRollback
+version: '1.0.0'
+main: cn.plumc.pInvRollback.PInvRollback
+api-version: '1.21'
+authors: [ PlumeIS ]
+description: FullBright.
