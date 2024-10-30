@@ -3,6 +3,7 @@ package cn.plumc.invrollback.commands;
 import cn.plumc.invrollback.PInvRollback;
 import cn.plumc.invrollback.Config;
 import cn.plumc.invrollback.RollbackManager;
+import cn.plumc.invrollback.ui.RollbackUI;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -60,7 +61,9 @@ public class PInvRollbackCommand implements TabExecutor {
                 return true;
             }
         }
-        if (args[0].equalsIgnoreCase("ui") && sender.hasPermission("commands.pinvrollback.ui")){}
+        if (args[0].equalsIgnoreCase("ui") && sender.hasPermission("commands.pinvrollback.ui")){
+            RollbackUI.open(player, player.getUniqueId());
+        }
 
         return false;
     }
@@ -174,7 +177,7 @@ public class PInvRollbackCommand implements TabExecutor {
         player.sendMessage(Config.i18n("command.list.prefix").formatted(name, page+1, pages+1));
         for (int i = start; i <= end; i++){
             RollbackManager.ProfileView view = sortedViews.get(i);
-            String message = view.message().isEmpty() ? "§7无" : view.message();
+            String message = view.message().isEmpty() ? Config.i18n("view.message.null") : view.message();
             if (message.length()>13) message = message.substring(0, 10)+"...";
             player.sendMessage(Config.i18n("command.list.line").formatted(view.id(), view.type(), format.format(view.date()), message));
         }

@@ -4,7 +4,7 @@ main: cn.plumc.invrollback.PInvRollback
 api-version: '1.21'
 authors: [ PlumeIS ]
 description: Crate Player Inventory snapshot.
-prefix: "[PInvRollBack]"
+prefix: PInvRollBack
 
 commands:
   pinvrollback:

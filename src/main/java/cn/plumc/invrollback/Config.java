@@ -2,7 +2,7 @@ package cn.plumc.invrollback;
 
 public class Config {
     public static String i18n(String key){
-        String text = PInvRollback.instance.getConfig().getString("messages.%s".formatted(key), key).replaceAll("&", "§");
+        String text = PInvRollback.instance.getConfig().getString("messages.%s".formatted(key.replaceAll("\\.", "_")), key).replaceAll("&", "§");
         if (key.startsWith("command")) return getPrefix()+" "+text;
         return text;
     }
