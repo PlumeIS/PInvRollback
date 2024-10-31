@@ -3,7 +3,9 @@ package cn.plumc.invrollback.profile;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static cn.plumc.invrollback.profile.InventoryProfile.getItemAsJson;
@@ -41,5 +43,13 @@ public class EnderChestProfile {
             int slot = Integer.parseInt(itemJson.getKey());
             inventory.setItem(slot, getItemFromJson(itemJson.getValue().getAsJsonObject()));
         }
+    }
+
+    public HashMap<String, ItemStack> getEnderChestData() {
+        HashMap<String, ItemStack> enderChest = new HashMap<>();
+        for (Map.Entry<String, JsonElement> itemJson : this.enderChest.entrySet()) {
+            enderChest.put(itemJson.getKey(), getItemFromJson(itemJson.getValue().getAsJsonObject()));
+        }
+        return enderChest;
     }
 }

@@ -1,6 +1,7 @@
 package cn.plumc.invrollback;
 
 import cn.plumc.invrollback.events.PInvRollbackShouldSaveEvent;
+import cn.plumc.invrollback.profile.InventoryProfile;
 import cn.plumc.invrollback.profile.RollbackProfile;
 import com.google.gson.*;
 import com.google.gson.stream.JsonWriter;
@@ -238,6 +239,14 @@ public class RollbackManager {
         rollbackProfile.rollback(player);
     }
 
+    public void rollback(Player player, RollbackProfile profile, String reason){
+        PInvRollbackShouldSaveEvent saveEvent = new PInvRollbackShouldSaveEvent(player, DefaultType.ROLLBACK, reason, Config.maxCount("rollback"));
+        Bukkit.getPluginManager().callEvent(saveEvent);
+        if (saveEvent.isCancelled()) return;
+        PInvRollback.instance.getLogger().info("Player %s rollback snapshot with id: %d".formatted(player.getName(), profile.id));
+        profile.rollback(player);
+    }
+
     public List<ProfileView> getSortedViews(UUID uuid){
         return views.get(uuid).stream().sorted(Comparator.comparing(ProfileView::time, Comparator.reverseOrder())).toList();
     }
@@ -261,6 +270,14 @@ public class RollbackManager {
             }
         }
         return activeIds;
+    }
+
+    public List<String> getTypes(UUID uuid){
+        List<String> types = new ArrayList<>();
+        if (counters.containsKey(uuid)) {
+            types.addAll(counters.get(uuid).keySet());
+        }
+        return types;
     }
 
     public void importProfile(){}

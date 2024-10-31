@@ -4,9 +4,10 @@ import cn.plumc.invrollback.Config;
 import cn.plumc.invrollback.PInvRollback;
 import cn.plumc.invrollback.RollbackManager;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Skull;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -16,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -32,18 +34,32 @@ public class RollbackUI extends ChestUI{
 
     private int page = 0;
 
+    private List<RollbackManager.ProfileView> views;
+    private List<String> filters;
+    private String filterType;
+    private int viewStart;
+
     private final UUID target;
 
     public RollbackUI(Player player, UUID target) {
         super(player, 54, Component.text(Config.i18n("ui.rollback.title")));
-        opened.put(player.getUniqueId(), this);
         this.target = target;
+        init();
+    }
+
+    @Override
+    public void init() {
+        views = PInvRollback.rollbackManager.getSortedViews(target);
+        filters = PInvRollback.rollbackManager.getTypes(target);
+        filters.addFirst(Config.i18n("type.all"));
+        filterType = Config.i18n("type.all");
+        super.init();
     }
 
     @Override
     public void update() {
-        List<RollbackManager.ProfileView> views = PInvRollback.rollbackManager.getSortedViews(player.getUniqueId());
-        int size = views.size();
+        List<RollbackManager.ProfileView> filtered = views.stream().filter(profileView -> profileView.type().equals(filterType)||filterType.equals(Config.i18n("type.all"))).toList();
+        int size = filtered.size();
 
         int maxPages;
         if (size % VIEW_PRE_PAGE == 0) {
@@ -53,31 +69,33 @@ public class RollbackUI extends ChestUI{
         }
         maxPages-=1;
 
-        int viewStart = page * VIEW_PRE_PAGE;
+        viewStart = page * VIEW_PRE_PAGE;
         int viewEnd = Math.min((page + 1) * VIEW_PRE_PAGE, size - 1);
 
         for (int i = 9; i < 45; i++) inventory.clear(i);
 
         SimpleDateFormat format = new SimpleDateFormat("MM/dd HH:mm:ss");
-        for (int i = viewStart; i < viewEnd; i++) {
-            RollbackManager.ProfileView view = views.get(i);
+        for (int i = viewStart; i <= viewEnd; i++) {
+            RollbackManager.ProfileView view = filtered.get(i);
             int invIndex = i - viewStart + 9;
             ItemStack viewItem = new ItemStack(Material.CHEST);
             ItemMeta meta = viewItem.getItemMeta();
             meta.displayName(Component.text(Config.i18n("ui.rollback.view.type").formatted(view.type())));
-            meta.lore(List.of(
+            List<TextComponent> lore = new ArrayList<>(List.of(
                     Component.text(Config.i18n("ui.rollback.view.id").formatted(view.id())),
                     Component.text(Config.i18n("ui.rollback.view.date").formatted(format.format(view.date()))),
                     Component.text(Config.i18n("ui.rollback.view.message").formatted("".equals(view.message()) ? Config.i18n("view.message.null") : view.message())),
-                    Component.text(""),
-                    Component.text(Config.i18n("ui.rollback.view.tip").formatted(view.message()))
-                    )
-            );
+                    Component.text("")
+            ));
+            if (player.hasPermission("commands.pinvrollback.rollback")){
+                lore.add(Component.text(Config.i18n("ui.rollback.view.tip")));
+            } else lore.add(Component.text(Config.i18n("ui.confirm.view.tip")));
+            meta.lore(lore);
             viewItem.setItemMeta(meta);
             inventory.setItem(invIndex, viewItem);
         }
 
-        ItemStack frame = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemStack frame = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta frameMeta = frame.getItemMeta();
         frameMeta.setHideTooltip(true);
         frameMeta.displayName(Component.text(""));
@@ -94,8 +112,8 @@ public class RollbackUI extends ChestUI{
         headMetal.setOwningPlayer(player);
         headMetal.displayName(Component.text(Config.i18n("ui.rollback.player").formatted(player.getName())));
         headMetal.lore(List.of(
-                Component.text(Config.i18n("ui.rollback.player.count").formatted(size)),
-                Component.text(Config.i18n("ui.rollback.player.new_date").formatted(views.getFirst()==null?Config.i18n("view.message.null"):format.format(views.getFirst().date())))
+                Component.text(Config.i18n("ui.rollback.player.count").formatted(views.size())),
+                Component.text(Config.i18n("ui.rollback.player.new_date").formatted(filtered.getFirst()==null?Config.i18n("view.message.null"):format.format(filtered.getFirst().date())))
         ));
         playerHead.setItemMeta(headMetal);
         inventory.setItem(PLAYER_HEAD, playerHead);
@@ -103,6 +121,12 @@ public class RollbackUI extends ChestUI{
         ItemStack filter = new ItemStack(Material.HOPPER);
         ItemMeta filterMeta = filter.getItemMeta();
         filterMeta.displayName(Component.text(Config.i18n("ui.rollback.filter")));
+        List<Component> filterComponents = new ArrayList<>();
+        for (String f: filters){
+            if (f.equals(filterType)) filterComponents.add(Component.text("§f"+f));
+            else filterComponents.add(Component.text("§8"+f));
+        }
+        filterMeta.lore(filterComponents);
         filter.setItemMeta(filterMeta);
         inventory.setItem(FILTER, filter);
 
@@ -123,8 +147,8 @@ public class RollbackUI extends ChestUI{
 
     @Override
     public void onClick(ClickType clickType, InventoryAction action, int slot) {
-        List<RollbackManager.ProfileView> views = PInvRollback.rollbackManager.getSortedViews(player.getUniqueId());
-        int size = views.size();
+        List<RollbackManager.ProfileView> filtered = views.stream().filter(profileView -> profileView.type().equals(filterType)||filterType.equals(Config.i18n("type.all"))).toList();
+        int size = filtered.size();
 
         int maxPages;
         if (size % VIEW_PRE_PAGE == 0) {
@@ -135,13 +159,39 @@ public class RollbackUI extends ChestUI{
 
         if (slot==PAGE_PREV){
             if (page>0) page--;
+            player.playSound(player, Sound.ITEM_BOOK_PAGE_TURN, 0.5F, 1F);
             update();
             return;
         }
         if (slot==PAGE_NEXT){
             if (page<maxPages-1) page++;
+            player.playSound(player, Sound.ITEM_BOOK_PAGE_TURN, 0.5F, 1F);
             update();
             return;
+        }
+        if (slot==FILTER){
+            int i = filters.indexOf(filterType);
+            i++;
+            if (i>filters.size()-1) i = 0;
+            filterType = filters.get(i);
+            page = 0;
+            player.playSound(player, Sound.BLOCK_DISPENSER_FAIL, 0.3F, 1F);
+            update();
+            return;
+        }
+        if (9<=slot&&slot<=44){
+            int i = slot + viewStart - 9;
+            RollbackManager.ProfileView view = filtered.get(i);
+            if (clickType == ClickType.LEFT){
+                ViewUI viewUI = new ViewUI(this, player, view.id());
+                player.playSound(player, Sound.BLOCK_CHEST_OPEN, 0.3F, 1F);
+                Bukkit.getScheduler().runTask(PInvRollback.instance, ()->{onClose();viewUI.open();});
+            }
+            if (clickType == ClickType.RIGHT && player.hasPermission("commands.pinvrollback.rollback")) {
+                ConfirmUI confirmUI = new ConfirmUI(this, player, view.id());
+                player.playSound(player, Sound.BLOCK_CHEST_OPEN, 0.3F, 1F);
+                Bukkit.getScheduler().runTask(PInvRollback.instance, ()->{onClose();confirmUI.open();});
+            }
         }
     }
 
@@ -149,6 +199,12 @@ public class RollbackUI extends ChestUI{
     public void onClose() {
         super.onClose();
         opened.remove(player.getUniqueId());
+    }
+
+    @Override
+    public void open() {
+        super.open();
+        opened.put(player.getUniqueId(), this);
     }
 
     public static void open(Player player, UUID target){
