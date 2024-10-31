@@ -95,7 +95,6 @@ public class ConfirmUI extends ChestUI {
         if (slot == BACK) {
             player.playSound(player, Sound.BLOCK_CHEST_CLOSE, 0.3F, 1F);
             Bukkit.getScheduler().runTask(PInvRollback.instance, parent::open);
-            return;
         }
     }
 

@@ -38,7 +38,7 @@ public class ViewUI extends ChestUI{
     private static final int LEGGINGS = 5;
     private static final int BOOTS = 6;
 
-    private RollbackProfile profile;
+    private final RollbackProfile profile;
     private Mode mode;
 
     private int handSlot;

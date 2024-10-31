@@ -1,7 +1,6 @@
 package cn.plumc.invrollback.listeners;
 
 import cn.plumc.invrollback.ui.ChestUI;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

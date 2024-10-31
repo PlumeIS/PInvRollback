@@ -1,7 +1,6 @@
 package cn.plumc.invrollback;
 
 import cn.plumc.invrollback.events.PInvRollbackShouldSaveEvent;
-import cn.plumc.invrollback.profile.InventoryProfile;
 import cn.plumc.invrollback.profile.RollbackProfile;
 import com.google.gson.*;
 import com.google.gson.stream.JsonWriter;
@@ -203,7 +202,7 @@ public class RollbackManager {
             inflater.end();
         }
 
-        String serializedJson = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+        String serializedJson = outputStream.toString(StandardCharsets.UTF_8);
         Gson gson = new Gson();
         JsonObject json = gson.fromJson(serializedJson, JsonObject.class);
         return new RollbackProfile(json);
