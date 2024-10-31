@@ -6,11 +6,7 @@ import cn.plumc.invrollback.listeners.InventoryListener;
 import cn.plumc.invrollback.listeners.RollbackListener;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.InputStreamReader;
 
 public final class PInvRollback extends JavaPlugin {
 
@@ -22,7 +18,9 @@ public final class PInvRollback extends JavaPlugin {
         instance = this;
         rollbackManager = new RollbackManager();
         rollbackManager.load(getDataPath());
-        updateConfig();
+        saveResource("messages.yml", false);
+        saveDefaultConfig();
+        Config.load();
 
         Bukkit.getPluginManager().registerEvents(new GameListener(), this);
         Bukkit.getPluginManager().registerEvents(new RollbackListener(), this);
@@ -39,15 +37,4 @@ public final class PInvRollback extends JavaPlugin {
         rollbackManager.save(getDataPath());
     }
 
-    public void updateConfig(){
-        saveDefaultConfig();
-        FileConfiguration config = getConfig();
-        FileConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(getResource("config.yml")));
-        for (String key : defaultConfig.getKeys(true)) {
-            if (!config.contains(key)) {
-                config.set(key, defaultConfig.get(key));
-            }
-        }
-        saveConfig();
-    }
 }

@@ -62,7 +62,7 @@ public class PInvRollbackCommand implements TabExecutor {
             }
         }
         if (args[0].equalsIgnoreCase("ui") && sender.hasPermission("commands.pinvrollback.ui")){
-            ui(player, args);
+            return ui(player, args);
         }
 
         return false;
@@ -205,7 +205,7 @@ public class PInvRollbackCommand implements TabExecutor {
         if (subCommand==null){
             sender.sendMessage(Config.i18n("command.help"));
             return true;
-        };
+        }
         switch (subCommand){
             case ROLLBACK:
                 sender.sendMessage(Config.i18n("command.help.rollback"));
@@ -244,7 +244,7 @@ public class PInvRollbackCommand implements TabExecutor {
             case "list":{
                 if (args.length==2) {
                     List<RollbackManager.ProfileView> sortedViews = PInvRollback.rollbackManager.getSortedViews(player.getUniqueId());
-                    int pages = 0;
+                    int pages;
                     if (sortedViews.size()%Config.pageLines() == 0){
                         pages = sortedViews.size()/Config.pageLines()-1;
                     } else {
@@ -255,7 +255,7 @@ public class PInvRollbackCommand implements TabExecutor {
                         page.add(String.valueOf(i));
                     }
                     return page;
-                };
+                }
                 if (args.length==3 && sender.hasPermission("commands.pinvrollback.list.other")) return players;
             }
         }
