@@ -16,6 +16,6 @@ public class Config {
     }
 
     public static String getPrefix(){
-        return PInvRollback.instance.getConfig().getString("messages.command.prefix", "").replaceAll("&", "§");
+        return PInvRollback.instance.getConfig().getString("messages.command_prefix", "").replaceAll("&", "§");
     }
 }

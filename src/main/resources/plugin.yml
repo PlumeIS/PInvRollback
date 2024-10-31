@@ -33,5 +33,7 @@ permissions:
     default: op
   commands.pinvrollback.ui:
     default: true
+  commands.pinvrollback.ui.other:
+    default: op
   commands.pinvrollback.ui.fetch:
     default: op

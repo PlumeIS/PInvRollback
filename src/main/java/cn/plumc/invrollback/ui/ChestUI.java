@@ -1,5 +1,6 @@
 package cn.plumc.invrollback.ui;
 
+import cn.plumc.invrollback.PInvRollback;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -21,13 +22,11 @@ public abstract class ChestUI {
         this.parent = parent;
         this.player = player;
         this.inventory = Bukkit.createInventory(player, size, title);
-        init();
     }
 
     public ChestUI(Player player, int size, Component title) {
         this.player = player;
         this.inventory = Bukkit.createInventory(player, size, title);
-        init();
     }
 
     public void init(){
@@ -45,7 +44,11 @@ public abstract class ChestUI {
 
     public void onClose(){
         players.remove(player.getUniqueId());
-        if (parent != null) parent.open();
+        Bukkit.getScheduler().runTask(PInvRollback.instance, ()->{if (hasParent() && parent != null) parent.open();});
+    }
+
+    public boolean hasParent(){
+        return false;
     }
 
     public static boolean isPlayerOpen(UUID player, Inventory inventory){
@@ -54,7 +57,9 @@ public abstract class ChestUI {
 
     public static ChestUI getUI(Player player, Inventory inventory){
         ChestUI ui;
-        if ((ui= RollbackUI.get(player, inventory))!=null) return ui;
+        if ((ui = RollbackUI.get(player, inventory))!=null) return ui;
+        if ((ui = ConfirmUI.get(player, inventory))!=null) return ui;
+        if ((ui = ViewUI.get(player, inventory))!=null) return ui;
         return null;
     }
 }

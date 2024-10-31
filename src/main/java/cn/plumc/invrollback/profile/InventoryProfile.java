@@ -3,12 +3,14 @@ package cn.plumc.invrollback.profile;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.Material;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 
 public class InventoryProfile {
@@ -94,5 +96,22 @@ public class InventoryProfile {
             int slot = Integer.parseInt(itemJson.getKey());
             inventory.setItem(slot, getItemFromJson(itemJson.getValue().getAsJsonObject()));
         }
+    }
+
+    public HashMap<String, ItemStack> getInventoryData() {
+        HashMap<String, ItemStack> inventory = new HashMap<>();
+        if (helmet != null) inventory.put("helmet", getItemFromJson(helmet));
+        if (chestplate != null) inventory.put("chestplate", getItemFromJson(chestplate));
+        if (leggings != null) inventory.put("leggings", getItemFromJson(leggings));
+        if (boots != null) inventory.put("boots", getItemFromJson(boots));
+        if (offHand != null) inventory.put("offHand", getItemFromJson(offHand));
+        for (Map.Entry<String, JsonElement> itemJson : mainInventory.entrySet()) {
+            inventory.put(itemJson.getKey(), getItemFromJson(itemJson.getValue().getAsJsonObject()));
+        }
+        return inventory;
+    }
+
+    public int getHandSlot(){
+        return handSlot;
     }
 }

@@ -12,8 +12,8 @@ public class RollbackProfile {
     public final String message;
     public final long time;
     public final long id;
-    private final InventoryProfile inventory;
-    private final EnderChestProfile enderChest;
+    public final InventoryProfile inventory;
+    public final EnderChestProfile enderChest;
 
     public RollbackProfile(Player player, String type, String message) {
         this.player = player.getUniqueId();

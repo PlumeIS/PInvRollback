@@ -62,7 +62,7 @@ public class PInvRollbackCommand implements TabExecutor {
             }
         }
         if (args[0].equalsIgnoreCase("ui") && sender.hasPermission("commands.pinvrollback.ui")){
-            RollbackUI.open(player, player.getUniqueId());
+            ui(player, args);
         }
 
         return false;
@@ -180,6 +180,23 @@ public class PInvRollbackCommand implements TabExecutor {
             String message = view.message().isEmpty() ? Config.i18n("view.message.null") : view.message();
             if (message.length()>13) message = message.substring(0, 10)+"...";
             player.sendMessage(Config.i18n("command.list.line").formatted(view.id(), view.type(), format.format(view.date()), message));
+        }
+        return true;
+    }
+
+    private boolean ui(Player player, String[] args){
+        if (args.length == 1){
+            RollbackUI.open(player, player.getUniqueId());
+            return true;
+        } else if (args.length >= 2 || player.hasPermission("commands.pinvrollback.ui.other")){OfflinePlayer target = Bukkit.getOfflinePlayer(args[2]);
+            if (!target.isOnline()) {
+                player.sendMessage(Config.i18n("command.player.offline"));
+            } else {
+                RollbackUI.open(player, target.getUniqueId());
+            }
+        } else {
+            player.sendMessage(Config.i18n("command.permission_missing"));
+            return true;
         }
         return true;
     }
