@@ -37,6 +37,7 @@ public abstract class ChestUI {
 
     public void open(){
         player.openInventory(inventory);
+        player.updateInventory();
         players.put(player.getUniqueId(), inventory);
     }
 
