@@ -5,6 +5,7 @@ import cn.plumc.invrollback.PInvRollback;
 import cn.plumc.invrollback.profile.RollbackProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -85,9 +86,14 @@ public class ConfirmUI extends ChestUI {
         }
         if (!loaded) return;
         if (slot == VIEW) {
-            ViewUI viewUI = new ViewUI(this, player, profile.id);
-            player.playSound(player, Sound.BLOCK_CHEST_OPEN, 0.3F, 1F);
-            Bukkit.getScheduler().runTask(PInvRollback.instance, ()->{onClose();viewUI.open();});
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(profile.player);
+            if (offlinePlayer.isOnline()) {
+                ViewUI viewUI = new ViewUI(this, player, profile.id);
+                player.playSound(player, Sound.BLOCK_CHEST_OPEN, 0.3F, 1F);
+                Bukkit.getScheduler().runTask(PInvRollback.instance, ()->{onClose();viewUI.open();});
+            } else {
+                player.sendMessage(Config.i18n("command.player.offline"));
+            }
             return;
         }
         if (slot == ACCEPT) {
