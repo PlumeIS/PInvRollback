@@ -56,4 +56,16 @@ public class RollbackProfile {
     public String toString() {
         return "RollbackProfile[player=%s id=%s type=%s message=%s time=%s]".formatted(player.toString(), id, type, message, time);
     }
+
+    public static RollbackProfile getLoading(){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("player", "c1d3dcd0-5125-4910-9ac0-0b738ad39d5c");
+        jsonObject.addProperty("type", "loading");
+        jsonObject.addProperty("message", "loading");
+        jsonObject.addProperty("time", System.currentTimeMillis());
+        jsonObject.addProperty("id", 0);
+        jsonObject.add("inventory", new JsonObject());
+        jsonObject.add("enderChest", new JsonObject());
+        return new RollbackProfile(jsonObject);
+    }
 }

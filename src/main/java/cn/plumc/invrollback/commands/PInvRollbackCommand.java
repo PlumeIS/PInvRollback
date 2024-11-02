@@ -11,8 +11,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,7 +25,7 @@ public class PInvRollbackCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(Config.i18n("command.player_only"));
             return false;
@@ -188,7 +186,7 @@ public class PInvRollbackCommand implements TabExecutor {
         if (args.length == 1){
             RollbackUI.open(player, player.getUniqueId());
             return true;
-        } else if (args.length >= 2 || player.hasPermission("commands.pinvrollback.ui.other")){OfflinePlayer target = Bukkit.getOfflinePlayer(args[2]);
+        } else if (args.length >= 2 || player.hasPermission("commands.pinvrollback.ui.other")){OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
             if (!target.isOnline()) {
                 player.sendMessage(Config.i18n("command.player.offline"));
             } else {
@@ -201,7 +199,7 @@ public class PInvRollbackCommand implements TabExecutor {
         return true;
     }
 
-    private boolean helper(CommandSender sender, @Nullable SubCommands subCommand){
+    private boolean helper(CommandSender sender, SubCommands subCommand){
         if (subCommand==null){
             sender.sendMessage(Config.i18n("command.help"));
             return true;
@@ -220,7 +218,7 @@ public class PInvRollbackCommand implements TabExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) return new ArrayList<>();
         List<String> subCommands = new ArrayList<>();
         if (sender.hasPermission("commands.pinvrollback.create")) subCommands.add("create");

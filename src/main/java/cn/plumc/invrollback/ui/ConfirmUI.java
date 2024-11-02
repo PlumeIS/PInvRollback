@@ -3,7 +3,6 @@ package cn.plumc.invrollback.ui;
 import cn.plumc.invrollback.Config;
 import cn.plumc.invrollback.PInvRollback;
 import cn.plumc.invrollback.profile.RollbackProfile;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -28,26 +27,31 @@ public class ConfirmUI extends ChestUI {
     private static final int REJECT = 24;
     private static final int BACK = 40;
 
-    private final RollbackProfile profile;
+    private RollbackProfile profile = RollbackProfile.getLoading();
+    private boolean loaded = false;
 
     public ConfirmUI(ChestUI parent, Player player, long id) {
-        super(parent, player, 54, Component.text(Config.i18n("ui.confirm.title")));
-        profile = PInvRollback.rollbackManager.read(id);
+        super(parent, player, 54, Config.i18n("ui.confirm.title"));
         init();
+        Bukkit.getScheduler().runTaskAsynchronously(PInvRollback.instance, ()->{
+            profile = PInvRollback.rollbackManager.read(id);
+            loaded = true;
+            update();
+        });
     }
 
     @Override
-    public void init() {
+    public void update() {
         ItemStack viewItem = new ItemStack(Material.CHEST);
         ItemMeta meta = viewItem.getItemMeta();
         SimpleDateFormat format = new SimpleDateFormat("MM/dd HH:mm:ss");
-        meta.displayName(Component.text(Config.i18n("ui.rollback.view.type").formatted(profile.type)));
-        meta.lore(List.of(
-                Component.text(Config.i18n("ui.rollback.view.id").formatted(profile.id)),
-                Component.text(Config.i18n("ui.rollback.view.date").formatted(format.format(new Date(profile.time)))),
-                Component.text(Config.i18n("ui.rollback.view.message").formatted("".equals(profile.message) ? Config.i18n("view.message.null") : profile.message)),
-                Component.text(""),
-                Component.text(Config.i18n("ui.confirm.view.tip"))
+        meta.setDisplayName(Config.i18n("ui.rollback.view.type").formatted(profile.type));
+        meta.setLore(List.of(
+                Config.i18n("ui.rollback.view.id").formatted(profile.id),
+                Config.i18n("ui.rollback.view.date").formatted(format.format(new Date(profile.time))),
+                Config.i18n("ui.rollback.view.message").formatted("".equals(profile.message) ? Config.i18n("view.message.null") : profile.message),
+                "",
+                Config.i18n("ui.confirm.view.tip")
                 )
         );
         viewItem.setItemMeta(meta);
@@ -55,26 +59,31 @@ public class ConfirmUI extends ChestUI {
 
         ItemStack acceptItem = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
         ItemMeta acceptMeta = acceptItem.getItemMeta();
-        acceptMeta.displayName(Component.text(Config.i18n("ui.confirm.accept")));
-        acceptMeta.lore(List.of(Component.text(Config.i18n("ui.confirm.warning"))));
+        acceptMeta.setDisplayName(Config.i18n("ui.confirm.accept"));
+        acceptMeta.setLore(List.of(Config.i18n("ui.confirm.warning")));
         acceptItem.setItemMeta(acceptMeta);
         inventory.setItem(ACCEPT, acceptItem);
 
         ItemStack rejectItem = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta rejectMeta = rejectItem.getItemMeta();
-        rejectMeta.displayName(Component.text(Config.i18n("ui.confirm.reject")));
+        rejectMeta.setDisplayName(Config.i18n("ui.confirm.reject"));
         rejectItem.setItemMeta(rejectMeta);
         inventory.setItem(REJECT, rejectItem);
 
         ItemStack backItem = new ItemStack(Material.BARRIER);
         ItemMeta backMeta = backItem.getItemMeta();
-        backMeta.displayName(Component.text(Config.i18n("ui.confirm.back")));
+        backMeta.setDisplayName(Config.i18n("ui.confirm.back"));
         backItem.setItemMeta(backMeta);
         inventory.setItem(BACK, backItem);
     }
 
     @Override
     public void onClick(ClickType clickType, InventoryAction action, int slot) {
+        if (slot == BACK || slot == REJECT) {
+            player.playSound(player, Sound.BLOCK_CHEST_CLOSE, 0.3F, 1F);
+            Bukkit.getScheduler().runTask(PInvRollback.instance, ()-> {onClose();parent.open();});
+        }
+        if (!loaded) return;
         if (slot == VIEW) {
             ViewUI viewUI = new ViewUI(this, player, profile.id);
             player.playSound(player, Sound.BLOCK_CHEST_OPEN, 0.3F, 1F);
@@ -87,14 +96,6 @@ public class ConfirmUI extends ChestUI {
             player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.3F, 1F);
             Bukkit.getScheduler().runTask(PInvRollback.instance, ()->player.closeInventory());
             return;
-        }
-        if (slot == REJECT) {
-            Bukkit.getScheduler().runTask(PInvRollback.instance, ()->player.closeInventory());
-            return;
-        }
-        if (slot == BACK) {
-            player.playSound(player, Sound.BLOCK_CHEST_CLOSE, 0.3F, 1F);
-            Bukkit.getScheduler().runTask(PInvRollback.instance, parent::open);
         }
     }
 

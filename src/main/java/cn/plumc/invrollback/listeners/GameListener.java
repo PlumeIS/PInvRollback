@@ -26,7 +26,7 @@ public class GameListener implements Listener {
 
     @EventHandler
     public static void onPlayerDeath(PlayerDeathEvent event) {
-        PInvRollbackShouldSaveEvent saveEvent = new PInvRollbackShouldSaveEvent(event.getPlayer(), RollbackManager.DefaultType.DEATH, "", Config.maxCount("death"));
+        PInvRollbackShouldSaveEvent saveEvent = new PInvRollbackShouldSaveEvent(event.getEntity(), RollbackManager.DefaultType.DEATH, "", Config.maxCount("death"));
         Bukkit.getPluginManager().callEvent(saveEvent);
     }
 

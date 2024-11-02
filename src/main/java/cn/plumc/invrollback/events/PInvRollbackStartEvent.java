@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
 public class PInvRollbackStartEvent extends Event implements Cancellable {
     private static final HandlerList HANDLER_LIST = new HandlerList();
@@ -48,7 +47,7 @@ public class PInvRollbackStartEvent extends Event implements Cancellable {
     }
 
     @Override
-    public @NotNull HandlerList getHandlers() {
+    public HandlerList getHandlers() {
         return HANDLER_LIST;
     }
 
