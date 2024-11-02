@@ -107,7 +107,7 @@ public class RollbackUI extends ChestUI{
 
         ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta headMetal = (SkullMeta) playerHead.getItemMeta();
-        headMetal.setOwningPlayer(player);
+        headMetal.setOwningPlayer(Bukkit.getOfflinePlayer(target));
         headMetal.setDisplayName(Config.i18n("ui.rollback.player").formatted(player.getName()));
         headMetal.setLore(List.of(
                 Config.i18n("ui.rollback.player.count").formatted(views.size()),
