@@ -73,8 +73,8 @@ public class PInvRollbackCommand implements TabExecutor {
                 String reason = "";
                 if (args.length >= 3) reason = args[2];
                 if (args.length == 2 || args.length == 3) {
-                    if ((!PInvRollback.rollbackManager.getOwner(NumberUtils.createInteger(args[1])).equals(player.getUniqueId()))||
-                            (args.length == 3 && args[2].equals("force"))){
+                    if (!PInvRollback.rollbackManager.getOwner(NumberUtils.createInteger(args[1])).equals(player.getUniqueId())&&
+                            !(args.length == 3 && args[2].equals("force"))){
                         player.sendMessage(Config.i18n("command.rollback.failed"));
                         return true;
                     }
@@ -87,7 +87,7 @@ public class PInvRollbackCommand implements TabExecutor {
                         if (!target.isOnline()) {
                             player.sendMessage(Config.i18n("command.player.offline"));
                         } else {
-                            if ((!PInvRollback.rollbackManager.getOwner(NumberUtils.createInteger(args[1])).equals(target.getUniqueId()))||args[2].equals("force")) {
+                            if (!PInvRollback.rollbackManager.getOwner(NumberUtils.createInteger(args[1])).equals(target.getUniqueId())&&!args[2].equals("force")) {
                                 player.sendMessage(Config.i18n("command.rollback.failed.other"));
                                 return true;
                             }
