@@ -4,7 +4,6 @@ import cn.plumc.invrollback.Config;
 import cn.plumc.invrollback.PInvRollback;
 import cn.plumc.invrollback.profile.RollbackProfile;
 import com.google.common.collect.ImmutableMap;
-import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -38,7 +37,8 @@ public class ViewUI extends ChestUI{
     private static final int LEGGINGS = 5;
     private static final int BOOTS = 6;
 
-    private final RollbackProfile profile;
+    private RollbackProfile profile = RollbackProfile.getLoading();
+    private boolean loaded = false;
     private Mode mode;
 
     private int handSlot;
@@ -46,11 +46,15 @@ public class ViewUI extends ChestUI{
     private HashMap<String, ItemStack> enderChestData;
 
     public ViewUI(ChestUI parent, Player player, long id) {
-        super(parent, player, 54, Component.text(Config.i18n("ui.view.title")));
+        super(parent, player, 54, Config.i18n("ui.view.title"));
         opened.put(player.getUniqueId(), this);
-        profile = PInvRollback.rollbackManager.read(id);
         mode = Mode.INVENTORY;
         init();
+        Bukkit.getScheduler().runTaskAsynchronously(PInvRollback.instance, ()->{
+            profile = PInvRollback.rollbackManager.read(id);
+            loaded = true;
+            init();
+        });
     }
 
     @Override
@@ -74,20 +78,21 @@ public class ViewUI extends ChestUI{
     private void getFetchableItem(Map.Entry<String, ItemStack> itemStackEntry, HashMap<String, ItemStack> enderChestData) {
         ItemStack itemStack = itemStackEntry.getValue();
         ItemMeta itemMeta = itemStack.getItemMeta();
-        List<Component> lore = itemMeta.lore() == null ? new ArrayList<>() : itemMeta.lore();
-        lore.add(Component.text(""));
-        lore.add(Component.text(Config.i18n("ui.view.fetch")));
-        itemMeta.lore(lore);
+        List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : itemMeta.getLore();
+        lore.add("");
+        lore.add(Config.i18n("ui.view.fetch"));
+        itemMeta.setLore(lore);
         itemStack.setItemMeta(itemMeta);
         enderChestData.put(itemStackEntry.getKey(), itemStack);
     }
 
     @Override
     public void update() {
+        inventory.clear();
         ItemStack frame = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta frameMeta = frame.getItemMeta();
         frameMeta.setHideTooltip(true);
-        frameMeta.displayName(Component.text(""));
+        frameMeta.setDisplayName("");
         frame.setItemMeta(frameMeta);
         inventory.setItem(7, frame);
         for (int i = 9; i < 18; i++) {
@@ -103,10 +108,10 @@ public class ViewUI extends ChestUI{
 
         ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta headMetal = (SkullMeta) playerHead.getItemMeta();
-        headMetal.setOwningPlayer(player);
-        headMetal.displayName(Component.text(Config.i18n("ui.rollback.player").formatted(player.getName())));
-        headMetal.lore(List.of(
-                Component.text(Config.i18n("ui.view.player.date").formatted(format.format(new Date(profile.time))))
+        headMetal.setOwningPlayer(Bukkit.getOfflinePlayer(profile.player));
+        headMetal.setDisplayName(Config.i18n("ui.rollback.player").formatted(Bukkit.getOfflinePlayer(profile.player).getName()));
+        headMetal.setLore(List.of(
+                Config.i18n("ui.view.player.date").formatted(format.format(new Date(profile.time)))
         ));
         playerHead.setItemMeta(headMetal);
         inventory.setItem(PLAYER, playerHead);
@@ -115,14 +120,14 @@ public class ViewUI extends ChestUI{
         if (mode == Mode.INVENTORY){
             modeItem = new ItemStack(Material.ENDER_CHEST);
             ItemMeta modeMeta = modeItem.getItemMeta();
-            modeMeta.displayName(Component.text(Config.i18n("ui.view.mode.inventory")));
-            modeMeta.lore(List.of(Component.text(Config.i18n("ui.view.mode.ender_chest.switch"))));
+            modeMeta.setDisplayName(Config.i18n("ui.view.mode.inventory"));
+            modeMeta.setLore(List.of(Config.i18n("ui.view.mode.ender_chest.switch")));
             modeItem.setItemMeta(modeMeta);
         } else {
             modeItem = new ItemStack(Material.CHEST);
             ItemMeta modeMeta = modeItem.getItemMeta();
-            modeMeta.displayName(Component.text(Config.i18n("ui.view.mode.ender_chest")));
-            modeMeta.lore(List.of(Component.text(Config.i18n("ui.view.mode.inventory.switch"))));
+            modeMeta.setDisplayName(Config.i18n("ui.view.mode.ender_chest"));
+            modeMeta.setLore(List.of(Config.i18n("ui.view.mode.inventory.switch")));
             modeItem.setItemMeta(modeMeta);
         }
         inventory.setItem(MODE, modeItem);
@@ -131,20 +136,20 @@ public class ViewUI extends ChestUI{
             ItemStack holdFrame = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
             ItemMeta holdFrameMeta = holdFrame.getItemMeta();
             holdFrameMeta.setHideTooltip(true);
-            holdFrameMeta.displayName(Component.text(""));
+            holdFrameMeta.setDisplayName("");
             holdFrame.setItemMeta(holdFrameMeta);
             inventory.setItem(handSlot+9, holdFrame);
         }
 
         ItemStack backItem = new ItemStack(Material.BARRIER);
         ItemMeta backMeta = backItem.getItemMeta();
-        backMeta.displayName(Component.text(Config.i18n("ui.confirm.back")));
+        backMeta.setDisplayName(Config.i18n("ui.confirm.back"));
         backItem.setItemMeta(backMeta);
         inventory.setItem(BACK, backItem);
 
         ItemStack nullItem = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
         ItemMeta nullItemMeta = nullItem.getItemMeta();
-        nullItemMeta.displayName(Component.text(Config.i18n("ui.view.item.null")));
+        nullItemMeta.setDisplayName(Config.i18n("ui.view.item.null"));
         nullItem.setItemMeta(nullItemMeta);
 
         inventory.setItem(OFF_HAND, inventoryData.getOrDefault("off_hand", nullItem));
@@ -172,15 +177,17 @@ public class ViewUI extends ChestUI{
 
     @Override
     public void onClick(ClickType clickType, InventoryAction action, int slot) {
+        if (slot == BACK) {
+            player.playSound(player, Sound.BLOCK_CHEST_CLOSE, 0.3F, 1F);
+            Bukkit.getScheduler().runTask(PInvRollback.instance, parent::open);
+            return;
+        }
+        if (!loaded) return;
+
         if (slot==MODE){
             if (mode == Mode.INVENTORY) mode = Mode.ENDER_CHEST;
             else mode = Mode.INVENTORY;
             update();
-            return;
-        }
-        if (slot == BACK) {
-            player.playSound(player, Sound.BLOCK_CHEST_CLOSE, 0.3F, 1F);
-            Bukkit.getScheduler().runTask(PInvRollback.instance, parent::open);
             return;
         }
 

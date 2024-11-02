@@ -17,7 +17,7 @@ public final class PInvRollback extends JavaPlugin {
     public void onEnable() {
         instance = this;
         rollbackManager = new RollbackManager();
-        rollbackManager.load(getDataPath());
+        rollbackManager.load(getDataFolder().toPath());
         saveResource("messages.yml", false);
         saveDefaultConfig();
         Config.load();
@@ -34,7 +34,7 @@ public final class PInvRollback extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        rollbackManager.save(getDataPath());
+        rollbackManager.save(getDataFolder().toPath());
     }
 
 }

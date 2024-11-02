@@ -1,7 +1,6 @@
 package cn.plumc.invrollback.ui;
 
 import cn.plumc.invrollback.PInvRollback;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -18,13 +17,13 @@ public abstract class ChestUI {
     public Inventory inventory;
     public ChestUI parent;
 
-    public ChestUI(ChestUI parent, Player player, int size, Component title) {
+    public ChestUI(ChestUI parent, Player player, int size, String title) {
         this.parent = parent;
         this.player = player;
         this.inventory = Bukkit.createInventory(player, size, title);
     }
 
-    public ChestUI(Player player, int size, Component title) {
+    public ChestUI(Player player, int size, String title) {
         this.player = player;
         this.inventory = Bukkit.createInventory(player, size, title);
     }

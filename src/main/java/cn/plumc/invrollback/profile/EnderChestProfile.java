@@ -28,7 +28,7 @@ public class EnderChestProfile {
     }
 
     public static EnderChestProfile read(JsonObject inventory){
-        return new EnderChestProfile(inventory.getAsJsonObject("enderChest"));
+        return new EnderChestProfile(inventory.getAsJsonObject("enderChest") == null ? new JsonObject() : inventory.getAsJsonObject("enderChest"));
     }
 
     public JsonObject serialize(){

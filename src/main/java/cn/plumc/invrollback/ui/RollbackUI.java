@@ -3,8 +3,6 @@ package cn.plumc.invrollback.ui;
 import cn.plumc.invrollback.Config;
 import cn.plumc.invrollback.PInvRollback;
 import cn.plumc.invrollback.RollbackManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -42,7 +40,7 @@ public class RollbackUI extends ChestUI{
     private final UUID target;
 
     public RollbackUI(Player player, UUID target) {
-        super(player, 54, Component.text(Config.i18n("ui.rollback.title")));
+        super(player, 54, Config.i18n("ui.rollback.title"));
         this.target = target;
         init();
     }
@@ -80,17 +78,17 @@ public class RollbackUI extends ChestUI{
             int invIndex = i - viewStart + 9;
             ItemStack viewItem = new ItemStack(Material.CHEST);
             ItemMeta meta = viewItem.getItemMeta();
-            meta.displayName(Component.text(Config.i18n("ui.rollback.view.type").formatted(view.type())));
-            List<TextComponent> lore = new ArrayList<>(List.of(
-                    Component.text(Config.i18n("ui.rollback.view.id").formatted(view.id())),
-                    Component.text(Config.i18n("ui.rollback.view.date").formatted(format.format(view.date()))),
-                    Component.text(Config.i18n("ui.rollback.view.message").formatted("".equals(view.message()) ? Config.i18n("view.message.null") : view.message())),
-                    Component.text("")
+            meta.setDisplayName(Config.i18n("ui.rollback.view.type").formatted(view.type()));
+            List<String> lore = new ArrayList<>(List.of(
+                    Config.i18n("ui.rollback.view.id").formatted(view.id()),
+                    Config.i18n("ui.rollback.view.date").formatted(format.format(view.date())),
+                    Config.i18n("ui.rollback.view.message").formatted("".equals(view.message()) ? Config.i18n("view.message.null") : view.message()),
+                    ""
             ));
             if (player.hasPermission("commands.pinvrollback.rollback")){
-                lore.add(Component.text(Config.i18n("ui.rollback.view.tip")));
-            } else lore.add(Component.text(Config.i18n("ui.confirm.view.tip")));
-            meta.lore(lore);
+                lore.add(Config.i18n("ui.rollback.view.tip"));
+            } else lore.add(Config.i18n("ui.confirm.view.tip"));
+            meta.setLore(lore);
             viewItem.setItemMeta(meta);
             inventory.setItem(invIndex, viewItem);
         }
@@ -98,7 +96,7 @@ public class RollbackUI extends ChestUI{
         ItemStack frame = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta frameMeta = frame.getItemMeta();
         frameMeta.setHideTooltip(true);
-        frameMeta.displayName(Component.text(""));
+        frameMeta.setDisplayName("");
         frame.setItemMeta(frameMeta);
         for (int i = 0; i < 9; i++) {
             inventory.setItem(i, frame);
@@ -110,37 +108,37 @@ public class RollbackUI extends ChestUI{
         ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta headMetal = (SkullMeta) playerHead.getItemMeta();
         headMetal.setOwningPlayer(player);
-        headMetal.displayName(Component.text(Config.i18n("ui.rollback.player").formatted(player.getName())));
-        headMetal.lore(List.of(
-                Component.text(Config.i18n("ui.rollback.player.count").formatted(views.size())),
-                Component.text(Config.i18n("ui.rollback.player.new_date").formatted(filtered.getFirst()==null?Config.i18n("view.message.null"):format.format(filtered.getFirst().date())))
+        headMetal.setDisplayName(Config.i18n("ui.rollback.player").formatted(player.getName()));
+        headMetal.setLore(List.of(
+                Config.i18n("ui.rollback.player.count").formatted(views.size()),
+                Config.i18n("ui.rollback.player.new_date").formatted(filtered.getFirst() == null ? Config.i18n("view.message.null") : format.format(filtered.getFirst().date()))
         ));
         playerHead.setItemMeta(headMetal);
         inventory.setItem(PLAYER_HEAD, playerHead);
 
         ItemStack filter = new ItemStack(Material.HOPPER);
         ItemMeta filterMeta = filter.getItemMeta();
-        filterMeta.displayName(Component.text(Config.i18n("ui.rollback.filter")));
-        List<Component> filterComponents = new ArrayList<>();
+        filterMeta.setDisplayName(Config.i18n("ui.rollback.filter"));
+        List<String> filterComponents = new ArrayList<>();
         for (String f: filters){
-            if (f.equals(filterType)) filterComponents.add(Component.text("§f"+f));
-            else filterComponents.add(Component.text("§8"+f));
+            if (f.equals(filterType)) filterComponents.add("§f" + f);
+            else filterComponents.add("§8" + f);
         }
-        filterMeta.lore(filterComponents);
+        filterMeta.setLore(filterComponents);
         filter.setItemMeta(filterMeta);
         inventory.setItem(FILTER, filter);
 
         ItemStack pagePrev = new ItemStack(Material.ARROW);
         ItemMeta pagePrevMeta = pagePrev.getItemMeta();
-        if (page==0) pagePrevMeta.displayName(Component.text(Config.i18n("ui.rollback.previous.disabled").formatted(page+1, maxPages+1)));
-        else pagePrevMeta.displayName(Component.text(Config.i18n("ui.rollback.previous").formatted(page+1, maxPages+1)));
+        if (page==0) pagePrevMeta.setDisplayName(Config.i18n("ui.rollback.previous.disabled").formatted(page + 1, maxPages + 1));
+        else pagePrevMeta.setDisplayName(Config.i18n("ui.rollback.previous").formatted(page + 1, maxPages + 1));
         pagePrev.setItemMeta(pagePrevMeta);
         inventory.setItem(PAGE_PREV, pagePrev);
 
         ItemStack pageNext = new ItemStack(Material.ARROW);
         ItemMeta pageNextMeta = pageNext.getItemMeta();
-        if (page==maxPages) pageNextMeta.displayName(Component.text(Config.i18n("ui.rollback.next.disabled").formatted(page+1, maxPages+1)));
-        else pageNextMeta.displayName(Component.text(Config.i18n("ui.rollback.next").formatted(page+1, maxPages+1)));
+        if (page==maxPages) pageNextMeta.setDisplayName(Config.i18n("ui.rollback.next.disabled").formatted(page + 1, maxPages + 1));
+        else pageNextMeta.setDisplayName(Config.i18n("ui.rollback.next").formatted(page + 1, maxPages + 1));
         pageNext.setItemMeta(pageNextMeta);
         inventory.setItem(PAGE_NEXT, pageNext);
     }
@@ -186,11 +184,13 @@ public class RollbackUI extends ChestUI{
                 ViewUI viewUI = new ViewUI(this, player, view.id());
                 player.playSound(player, Sound.BLOCK_CHEST_OPEN, 0.3F, 1F);
                 Bukkit.getScheduler().runTask(PInvRollback.instance, ()->{onClose();viewUI.open();});
+                return;
             }
             if (clickType == ClickType.RIGHT && player.hasPermission("commands.pinvrollback.rollback")) {
                 ConfirmUI confirmUI = new ConfirmUI(this, player, view.id());
                 player.playSound(player, Sound.BLOCK_CHEST_OPEN, 0.3F, 1F);
                 Bukkit.getScheduler().runTask(PInvRollback.instance, ()->{onClose();confirmUI.open();});
+                return;
             }
         }
     }

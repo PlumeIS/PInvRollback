@@ -1,7 +1,12 @@
 package cn.plumc.invrollback.profile;
 
+import cn.plumc.invrollback.nms.Item;
+import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -49,16 +54,16 @@ public class InventoryProfile {
     }
 
     public static @Nullable JsonObject getItemAsJson(ItemStack item){
-        if (item == null || item.getType()== Material.AIR || item.isEmpty()) return null;
+        if (item == null || item.getType()== Material.AIR) return null;
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("item", item.getType().getKey().toString());
-        jsonObject.addProperty("nbt", new String(Base64.getEncoder().encode(item.serializeAsBytes()), StandardCharsets.UTF_8));
+        jsonObject.addProperty("nbt", new String(Base64.getEncoder().encode(Item.serializeItem(item)), StandardCharsets.UTF_8));
         return jsonObject;
     }
 
     public static @Nullable ItemStack getItemFromJson(JsonObject jsonObject){
         if (jsonObject == null) return null;
-        return ItemStack.deserializeBytes(Base64.getDecoder().decode(jsonObject.get("nbt").getAsString()));
+        return Item.deserializeItem(Base64.getDecoder().decode(jsonObject.get("nbt").getAsString()));
     }
 
     public static InventoryProfile read(JsonObject inventory){
@@ -67,8 +72,8 @@ public class InventoryProfile {
                 inventory.getAsJsonObject("leggings"),
                 inventory.getAsJsonObject("boots"),
                 inventory.getAsJsonObject("offHand"),
-                inventory.get("handSlot").getAsInt(),
-                inventory.get("mainInventory").getAsJsonObject());
+                inventory.get("handSlot") == null ? 0 : inventory.get("handSlot").getAsInt(),
+                inventory.get("mainInventory") == null ? new JsonObject() : inventory.get("mainInventory").getAsJsonObject());
     }
 
     public JsonObject serialize(){

@@ -230,12 +230,14 @@ public class RollbackManager {
     }
 
     public void rollback(Player player, long id, String reason){
-        RollbackProfile rollbackProfile = read(id);
-        PInvRollbackShouldSaveEvent saveEvent = new PInvRollbackShouldSaveEvent(player, DefaultType.ROLLBACK, reason, Config.maxCount("rollback"));
-        Bukkit.getPluginManager().callEvent(saveEvent);
-        if (saveEvent.isCancelled()) return;
-        PInvRollback.instance.getLogger().info("Player %s rollback snapshot with id: %d".formatted(player.getName(), id));
-        rollbackProfile.rollback(player);
+        Bukkit.getScheduler().runTaskAsynchronously(PInvRollback.instance, ()->{
+            RollbackProfile rollbackProfile = read(id);
+            PInvRollbackShouldSaveEvent saveEvent = new PInvRollbackShouldSaveEvent(player, DefaultType.ROLLBACK, reason, Config.maxCount("rollback"));
+            Bukkit.getPluginManager().callEvent(saveEvent);
+            if (saveEvent.isCancelled()) return;
+            PInvRollback.instance.getLogger().info("Player %s rollback snapshot with id: %d".formatted(player.getName(), id));
+            rollbackProfile.rollback(player);
+        });
     }
 
     public void rollback(Player player, RollbackProfile profile, String reason){
